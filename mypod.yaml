@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+
+metadata: #where you can name the pod itself
+  name: nginx
+  labels:
+    name: nginx #What we can utilize when connecting to services
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 80
