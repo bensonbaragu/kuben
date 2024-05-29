@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello-world-rest-api
+  name: hello-world-rest-api
+  namespace: default
+spec:
+  replicas: 3 #number of pods 
+  minReadySeconds: 45 #The minimum number of seconds for which a newly created pod should be ready without any of its containers crashing to be considered available.
+  selector:
+    matchLabels:
+      app: hello-world-rest-api 
+  strategy:
+    rollingUpdate: 
+      maxSurge: 25% #number of pods that can be created  
+      maxUnavailable: 25% #number of pods that can be unavailable 
+    type: RollingUpdate #updates dont happen to all pods at once 
+  template:
+    metadata:
+      labels:
+        app: hello-world-rest-api
+    spec:
+      containers:
+      - image: in28min/hello-world-rest-api:0.0.3.RELEASE
+        imagePullPolicy: IfNotPresent #image should pulled only if not avaible locally 
+        name: hello-world-rest-api
+      restartPolicy: Always #always restart the container when they fail 
+      terminationGracePeriodSeconds: 30 #wait 30 sec for the container to terminate gracefully before stopping 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hello-world-rest-api
+  name: hello-world-rest-api
+  namespace: default
+spec:
+  ports:
+  - nodePort: 32208
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: hello-world-rest-api
+  sessionAffinity: None #traffic is not directed to the same pod every time 
+  type: LoadBalancer
